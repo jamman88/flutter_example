@@ -1,23 +1,30 @@
+import 'dart:convert';
 import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_example/model/member.dart';
+import 'package:scrolling_page_indicator/scrolling_page_indicator.dart';
+import 'package:http/http.dart' as http;
+
 
 class PostCard extends StatefulWidget {
 
+  List<Member> mlist;
   int num;
-  PostCard({required this.num});
-
+  PostCard({required this.num,required this.mlist});
 
   @override
   _PostCardState createState() => _PostCardState(num1: num);
 }
 
 class _PostCardState extends State<PostCard> {
-
   int num1;
   _PostCardState({required this.num1});
 
+  int pageLength=0;
+
+  int currentPageIndex=0;
 
   List<Image> catList = [
     Image.asset("assets/image/catList/cat1.jpg",fit: BoxFit.cover,),
@@ -33,9 +40,21 @@ class _PostCardState extends State<PostCard> {
     "scv21","scv22","scv23","scv24","scv25","scv26","scv27","scv28","scv29","scv30",
   ];
 
+  PageController _controller = PageController();
+
+
+
+  @override
+  void initState() {
+    pageLength = 3+Random().nextInt(5);
+    super.initState();
+
+  }
+
 
   @override
   Widget build(BuildContext context) {
+
     return Container(
       child: Column(
         children: [
@@ -60,33 +79,74 @@ class _PostCardState extends State<PostCard> {
               ],
             ),
           ),
-          Container(
-            height: 400,
-            width: MediaQuery.of(context).size.width,
-            child: catList[Random().nextInt(5)],
+          AspectRatio(
+            aspectRatio: 1.5,
+            child:Stack(
+              alignment: Alignment.topRight,
+              children: [
+                PageView.builder(
+                  itemBuilder: (BuildContext context,int index){
+                    return Container(
+                      child: catList[Random().nextInt(5)] ,
+                    );
+                  },
+                  itemCount: pageLength,
+                  controller: _controller,
+                  onPageChanged: (value){
+                    setState(() {
+                      currentPageIndex=value;
+                      print(value);
+                    });
+                  },
+                ),
+                Container(
+                  padding: EdgeInsets.symmetric(vertical: 5,horizontal: 10),
+                  margin: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.8),
+                    borderRadius: BorderRadius.circular(500),
+                  ),
+
+                  child: Text('${currentPageIndex+1} / ${pageLength}',style: TextStyle(color: Colors.white,),),
+                ),
+              ],
+            )
+
           ),
           Container(
             height: 50,
             padding: EdgeInsets.symmetric(horizontal: 10),
             width: MediaQuery.of(context).size.width,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child:Stack(
+              alignment: Alignment.center,
               children: [
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Icon(Icons.favorite_border),
-                    SizedBox(width: 7,),
-                    Icon(Icons.chat_outlined),
-                    SizedBox(width: 7,),
-                    Icon(Icons.send),
+                    Row(
+                      children: [
+                        Icon(Icons.favorite_border),
+                        SizedBox(width: 7,),
+                        Icon(Icons.chat_outlined),
+                        SizedBox(width: 7,),
+                        Icon(Icons.send),
+                      ],
+                    ),
+                    Icon(Icons.bookmark_border),
                   ],
                 ),
-                Container(width: 60,child: Text("indic",style: TextStyle(fontSize: 20),),),
-                Icon(Icons.bookmark_border)
+                ScrollingPageIndicator(
+                  dotColor: Colors.grey,
+                  dotSelectedColor: Colors.deepPurple,
+                  dotSize: 6,
+                  dotSelectedSize: 8,
+                  dotSpacing: 12,
+                  controller: _controller,
+                  itemCount: pageLength,
+                  orientation: Axis.horizontal,
+                ),
               ],
-            ),
-
-
+            )
           ),
           Container(
             padding: EdgeInsets.symmetric(horizontal: 10),
