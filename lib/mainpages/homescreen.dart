@@ -19,7 +19,7 @@ Future<List<Member>> fetchPost() async {
   List list = data["result"];
   print("리스트>>>"+list.toString());
   var memberList  = list.map((element) => Member.fromJson(element)).toList();
-  print("처음아이디>>>"+memberList[1].adId);
+  print("처음아이asas디11>>>"+memberList[1].adId);
 
   return memberList;
 }
